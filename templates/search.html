@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search - Movie Deal Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #14181c;
+            min-height: 100vh;
+            color: #9ab;
+        }
+
+        a {
+            color: #40c463;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #5dd47a;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo span {
+            color: #40c463;
+        }
+
+        .back-link {
+            font-size: 0.9rem;
+        }
+
+        /* Card */
+        .card {
+            background: #1c2228;
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .card-subtitle {
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #678;
+            margin-bottom: 8px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row input[type="text"] {
+            flex: 1;
+        }
+
+        .form-row button {
+            width: auto;
+            padding: 14px 24px;
+            margin-top: 0;
+        }
+
+        .price-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .price-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .price-input-wrapper {
+            position: relative;
+            width: 120px;
+        }
+
+        .price-input-wrapper::before {
+            content: '$';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #678;
+            font-size: 1rem;
+            z-index: 1;
+        }
+
+        .price-input-wrapper input[type="number"] {
+            padding: 14px 16px 14px 36px;
+            width: 100%;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: #14181c;
+            border: 1px solid #2c3440;
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #40c463;
+        }
+
+        input::placeholder {
+            color: #456;
+        }
+
+        /* Button */
+        .btn {
+            padding: 14px 20px;
+            background: #40c463;
+            border: none;
+            border-radius: 8px;
+            color: #14181c;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #5dd47a;
+        }
+
+        /* Error */
+        .error-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            background: rgba(255, 80, 80, 0.1);
+            border: 1px solid rgba(255, 80, 80, 0.2);
+            color: #ff6b6b;
+        }
+
+        /* Results */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .results-header h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .results-count {
+            color: #40c463;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 32px 20px;
+            color: #678;
+        }
+
+        .no-results h3 {
+            color: #9ab;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        /* Deal Card */
+        .deal-card {
+            display: flex;
+            gap: 16px;
+            background: #252c34;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+
+        .deal-card:hover {
+            background: #2a323c;
+        }
+
+        .deal-thumbnail {
+            flex-shrink: 0;
+            width: 80px;
+            height: 100px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #1c2228;
+        }
+
+        .deal-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .deal-thumbnail-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #456;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .deal-content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .deal-badge {
+            display: inline-block;
+            background: rgba(0, 224, 84, 0.12);
+            color: #40c463;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+            width: fit-content;
+        }
+
+        .deal-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .deal-title a {
+            color: #fff;
+        }
+
+        .deal-title a:hover {
+            color: #40c463;
+        }
+
+        .deal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .deal-price {
+            color: #40c463;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .deal-retailer {
+            color: #678;
+            font-size: 0.8rem;
+        }
+
+        /* Title Selector */
+        .title-selector {
+            margin-top: 16px;
+            padding: 16px;
+            background: #252c34;
+            border-radius: 8px;
+        }
+
+        .title-selector label {
+            display: block;
+            margin-bottom: 10px;
+            color: #9ab;
+        }
+
+        .title-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .title-option {
+            padding: 8px 14px;
+            background: #1c2228;
+            border: 2px solid #2c3440;
+            border-radius: 6px;
+            color: #9ab;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .title-option:hover {
+            border-color: #40c463;
+            color: #fff;
+        }
+
+        .title-option.selected {
+            background: rgba(64, 196, 99, 0.15);
+            border-color: #40c463;
+            color: #40c463;
+        }
+
+        .title-option .recommended-badge {
+            font-size: 0.7rem;
+            background: #40c463;
+            color: #14181c;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 6px;
+            font-weight: 600;
+        }
+
+        .movie-info {
+            font-size: 0.85rem;
+            color: #678;
+        }
+
+        .movie-info span {
+            margin-right: 12px;
+        }
+
+        .fetching-info {
+            color: #678;
+            font-size: 0.9rem;
+            padding: 8px 0;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #678;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #2c3440;
+            border-top-color: #40c463;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-row button {
+                width: 100%;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .deal-card {
+                gap: 12px;
+                padding: 12px;
+            }
+
+            .deal-thumbnail {
+                width: 60px;
+                height: 75px;
+            }
+
+            .deal-title {
+                font-size: 0.85rem;
+            }
+
+            .deal-meta {
+                gap: 6px;
+            }
+
+            .deal-price {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="{{ url_for('index') }}" class="logo">Physical Media, <span>Reigns Supreme</span></a>
+            <a href="{{ url_for('index') }}" class="back-link">Back to Home</a>
+        </header>
+
+        <div class="card">
+            <h1 class="card-title">Search Special Editions</h1>
+            <p class="card-subtitle">Find boutique Blu-ray and 4K releases</p>
+
+            {% if error %}
+                <div class="error-message">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" id="search-form">
+                <input type="hidden" id="search_title" name="search_title" value="">
+                <input type="hidden" id="letterboxd_url" name="letterboxd_url" value="">
+                <div class="form-row">
+                    <input
+                        type="text"
+                        id="movie_title"
+                        name="movie_title"
+                        placeholder="Title, year, or Letterboxd URL"
+                        value="{{ movie_title }}"
+                        required
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="btn" id="search-btn">Search</button>
+                </div>
+
+                <!-- Title selector (shown when Letterboxd URL has alternative titles) -->
+                <div class="title-selector" id="title-selector" style="display: none;">
+                    <label>Search as:</label>
+                    <div class="title-options" id="title-options"></div>
+                    <div class="movie-info" id="movie-info"></div>
+                </div>
+
+                <div class="price-row">
+                    <div class="form-group">
+                        <label for="max_price">Max Price</label>
+                        <div class="price-input-wrapper">
+                            <input
+                                type="number"
+                                id="max_price"
+                                name="max_price"
+                                value="{{ max_price or 100 }}"
+                                min="5"
+                                max="200"
+                                step="5"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Searching...</p>
+            </div>
+        </div>
+
+        {% if searched %}
+        <div class="card">
+            <div class="results-header">
+                <h2>{{ movie_title }}</h2>
+                <span class="results-count">{{ deals|length }} found</span>
+            </div>
+
+            {% if deals %}
+                {% for deal in deals %}
+                <div class="deal-card">
+                    <a href="{{ deal.url }}" target="_blank" rel="noopener" class="deal-thumbnail">
+                        {% if deal.thumbnail %}
+                            <img src="{{ deal.thumbnail }}" alt="{{ deal.product_title }}" loading="lazy">
+                        {% else %}
+                            <div class="deal-thumbnail-placeholder">No Image</div>
+                        {% endif %}
+                    </a>
+                    <div class="deal-content">
+                        <span class="deal-badge">{{ deal.matched_example }}</span>
+                        <div class="deal-title">
+                            <a href="{{ deal.url }}" target="_blank" rel="noopener">{{ deal.product_title }}</a>
+                        </div>
+                        <div class="deal-meta">
+                            <span class="deal-price">${{ "%.2f"|format(deal.price) }}</span>
+                            <span class="deal-retailer">{{ deal.retailer }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">
+                    <h3>No special editions found</h3>
+                    <p>Try a different spelling or check back later</p>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const movieInput = document.getElementById('movie_title');
+        const searchForm = document.getElementById('search-form');
+        const searchBtn = document.getElementById('search-btn');
+        const titleSelector = document.getElementById('title-selector');
+        const titleOptions = document.getElementById('title-options');
+        const movieInfo = document.getElementById('movie-info');
+        const searchTitleInput = document.getElementById('search_title');
+        const letterboxdUrlInput = document.getElementById('letterboxd_url');
+        const loading = document.getElementById('loading');
+
+        let debounceTimer = null;
+        let currentMovieData = null;
+        let selectedTitle = null;
+
+        // Check if input is a Letterboxd film URL
+        function isLetterboxdUrl(text) {
+            return /^https?:\/\/letterboxd\.com\/film\/[^\/]+\/?$/.test(text.trim());
+        }
+
+        // Fetch movie details from Letterboxd URL
+        async function fetchMovieDetails(url) {
+            titleSelector.style.display = 'block';
+            titleOptions.innerHTML = '<div class="fetching-info">Fetching movie details...</div>';
+            movieInfo.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/movie-details', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    titleOptions.innerHTML = `<div class="fetching-info" style="color: #ff6b6b;">${data.error}</div>`;
+                    return;
+                }
+
+                currentMovieData = data;
+                renderTitleOptions(data);
+
+            } catch (err) {
+                titleOptions.innerHTML = '<div class="fetching-info" style="color: #ff6b6b;">Failed to fetch movie details</div>';
+            }
+        }
+
+        // Render title options
+        function renderTitleOptions(data) {
+            if (!data.title_options || data.title_options.length <= 1) {
+                // No alternatives, just show movie info
+                titleOptions.innerHTML = '';
+                selectedTitle = data.title;
+                searchTitleInput.value = data.title;
+            } else {
+                // Show title options
+                titleOptions.innerHTML = '';
+
+                // Find recommended option or default to first
+                let defaultSelection = data.title_options[0].value;
+                for (const opt of data.title_options) {
+                    if (opt.recommended) {
+                        defaultSelection = opt.value;
+                        break;
+                    }
+                }
+
+                data.title_options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'title-option';
+                    if (opt.value === defaultSelection) {
+                        btn.classList.add('selected');
+                        selectedTitle = opt.value;
+                        searchTitleInput.value = opt.value;
+                    }
+
+                    btn.innerHTML = opt.label;
+                    if (opt.recommended) {
+                        btn.innerHTML += '<span class="recommended-badge">Recommended</span>';
+                    }
+
+                    btn.addEventListener('click', () => selectTitle(opt.value));
+                    titleOptions.appendChild(btn);
+                });
+            }
+
+            // Show movie info
+            let infoHtml = '';
+            if (data.year) infoHtml += `<span>${data.year}</span>`;
+            if (data.director) infoHtml += `<span>dir. ${data.director}</span>`;
+            movieInfo.innerHTML = infoHtml;
+
+            letterboxdUrlInput.value = movieInput.value.trim();
+        }
+
+        // Select a title option
+        function selectTitle(title) {
+            selectedTitle = title;
+            searchTitleInput.value = title;
+
+            document.querySelectorAll('.title-option').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent.replace('Recommended', '').trim() === title) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        // Handle input changes
+        movieInput.addEventListener('input', function() {
+            const value = this.value.trim();
+
+            clearTimeout(debounceTimer);
+
+            if (isLetterboxdUrl(value)) {
+                debounceTimer = setTimeout(() => fetchMovieDetails(value), 500);
+            } else {
+                titleSelector.style.display = 'none';
+                currentMovieData = null;
+                selectedTitle = null;
+                searchTitleInput.value = '';
+                letterboxdUrlInput.value = '';
+            }
+        });
+
+        // Handle form submit
+        searchForm.addEventListener('submit', function() {
+            loading.classList.add('active');
+        });
+
+        // Check on page load if there's already a Letterboxd URL
+        if (isLetterboxdUrl(movieInput.value)) {
+            fetchMovieDetails(movieInput.value.trim());
+        }
+    </script>
+</body>
+</html>

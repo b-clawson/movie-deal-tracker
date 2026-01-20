@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribed - Movie Deal Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #14181c;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #9ab;
+        }
+
+        a {
+            color: #40c463;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #5dd47a;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo h1 span {
+            color: #40c463;
+        }
+
+        .card {
+            background: #1c2228;
+            border-radius: 12px;
+            padding: 36px 32px;
+            text-align: center;
+        }
+
+        .checkmark {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #40c463;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 28px;
+            color: #14181c;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .email {
+            color: #40c463;
+            font-weight: 500;
+        }
+
+        .info-box {
+            margin-top: 28px;
+            padding: 20px;
+            background: #252c34;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .info-box h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 14px;
+        }
+
+        .info-box ul {
+            list-style: none;
+        }
+
+        .info-box li {
+            padding: 6px 0;
+            font-size: 0.9rem;
+            color: #789;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .info-box li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 12px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #40c463;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 28px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 28px 20px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Physical Media, <span>Reigns Supreme</span></h1>
+        </div>
+
+        <div class="card">
+            <div class="checkmark">&#10003;</div>
+
+            <h2>You're all set!</h2>
+
+            <p class="message">
+                We'll send deal alerts to<br>
+                <span class="email">{{ email }}</span>
+            </p>
+
+            <div class="info-box">
+                <h3>What happens next?</h3>
+                <ul>
+                    <li>We check your list daily</li>
+                    <li>You'll get an email when we find deals under $20</li>
+                    <li>Each email includes an unsubscribe link</li>
+                </ul>
+            </div>
+
+            <a href="{{ url_for('index') }}" class="back-link">&larr; Track another list</a>
+        </div>
+    </div>
+</body>
+</html>

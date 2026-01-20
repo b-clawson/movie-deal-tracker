@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Deal Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #14181c;
+            min-height: 100vh;
+            color: #9ab;
+        }
+
+        a {
+            color: #40c463;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #5dd47a;
+        }
+
+        .container {
+            max-width: 440px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        /* Header */
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .logo h1 span {
+            color: #40c463;
+        }
+
+        /* Card */
+        .card {
+            background: #1c2228;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .card-subtitle {
+            text-align: center;
+            margin-bottom: 28px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #678;
+            margin-bottom: 8px;
+        }
+
+        input[type="email"],
+        input[type="url"],
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            background: #14181c;
+            border: 1px solid #2c3440;
+            border-radius: 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #40c463;
+        }
+
+        input::placeholder {
+            color: #456;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23678' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        select option {
+            background: #1c2228;
+            color: #fff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .price-input {
+            position: relative;
+        }
+
+        .price-input::before {
+            content: '$';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #678;
+            font-size: 1rem;
+        }
+
+        .price-input input {
+            padding-left: 38px;
+        }
+
+        .help-text {
+            font-size: 0.75rem;
+            color: #567;
+            margin-top: 6px;
+        }
+
+        /* Button */
+        .btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: #40c463;
+            border: none;
+            border-radius: 8px;
+            color: #14181c;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            background: #5dd47a;
+        }
+
+        /* Divider */
+        .divider {
+            text-align: center;
+            margin: 28px 0;
+            color: #456;
+            font-size: 0.8rem;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: #2c3440;
+        }
+
+        .divider span {
+            background: #1c2228;
+            padding: 0 16px;
+            position: relative;
+        }
+
+        /* Secondary button */
+        .btn-secondary {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            background: transparent;
+            border: 1px solid #2c3440;
+            border-radius: 8px;
+            color: #9ab;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+            text-align: center;
+        }
+
+        .btn-secondary:hover {
+            border-color: #40c463;
+            color: #40c463;
+        }
+
+        /* Labels */
+        .labels {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 28px;
+            padding-top: 28px;
+            border-top: 1px solid #2c3440;
+        }
+
+        .label-tag {
+            background: #252c34;
+            color: #789;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .label-tag.highlight {
+            background: rgba(0, 224, 84, 0.12);
+            color: #40c463;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .flash-message.error {
+            background: rgba(255, 80, 80, 0.1);
+            border: 1px solid rgba(255, 80, 80, 0.2);
+            color: #ff6b6b;
+        }
+
+        /* Stats */
+        .stats {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.8rem;
+            color: #567;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: #456;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 16px;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Physical Media, <span>Reigns Supreme</span></h1>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Track Boutique Deals</h2>
+            <p class="card-subtitle">
+                Get notified when Criterion, Arrow, and other special editions
+                from your Letterboxd list go on sale.
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('subscribe') }}" method="POST">
+                <div class="form-group">
+                    <label for="list_url">Letterboxd List URL</label>
+                    <input
+                        type="url"
+                        id="list_url"
+                        name="list_url"
+                        placeholder="letterboxd.com/you/list/watchlist"
+                        required
+                    >
+                    <p class="help-text">Any public list or watchlist</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="max_price">Max Price</label>
+                        <div class="price-input">
+                            <input
+                                type="number"
+                                id="max_price"
+                                name="max_price"
+                                value="20"
+                                min="5"
+                                max="100"
+                                step="5"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="check_frequency">Check Frequency</label>
+                        <select id="check_frequency" name="check_frequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">Start Tracking</button>
+            </form>
+
+            <div class="divider"><span>or</span></div>
+
+            <a href="{{ url_for('search') }}" class="btn-secondary">Search a Movie</a>
+
+            <div class="labels">
+                <span class="label-tag highlight">Criterion</span>
+                <span class="label-tag highlight">Arrow</span>
+                <span class="label-tag">Vinegar Syndrome</span>
+                <span class="label-tag">Shout</span>
+                <span class="label-tag">Kino</span>
+                <span class="label-tag">+120 more</span>
+            </div>
+
+            {% if subscriber_count > 0 %}
+            <p class="stats">{{ subscriber_count }} collectors tracking</p>
+            {% endif %}
+        </div>
+
+        <p class="footer">Built for physical media collectors</p>
+    </div>
+</body>
+</html>
