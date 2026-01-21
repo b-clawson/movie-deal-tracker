@@ -412,19 +412,20 @@ class DealFinder:
             # On error, give benefit of doubt
             return True
 
-    def _batch_validate_results(self, movie: Movie, deals: List[Deal]) -> List[Deal]:
+    def _batch_validate_results(self, movie: Movie, deals: List[Deal], max_to_validate: int = 10) -> List[Deal]:
         """
-        Batch validate all search results using LLM.
+        Batch validate search results using LLM.
 
-        More efficient than individual validation, filters out results
-        that don't match the target movie.
+        Only validates the top N results for performance.
+        Filters out results that don't match the target movie.
         """
         if not deals or not self.llm_service:
             return deals
 
         try:
-            # Extract product titles for validation
-            product_titles = [deal.product_title for deal in deals]
+            # Only validate top N results for speed
+            deals_to_validate = deals[:max_to_validate]
+            product_titles = [deal.product_title for deal in deals_to_validate]
 
             result = self.llm_service.batch_validate_results(
                 movie_title=movie.title,
@@ -433,13 +434,13 @@ class DealFinder:
                 product_titles=product_titles
             )
 
-            # Filter to only valid results
+            # Filter to only valid results from validated set
             valid_deals = [
-                deals[i] for i in result.valid_indices
-                if i < len(deals)
+                deals_to_validate[i] for i in result.valid_indices
+                if i < len(deals_to_validate)
             ]
 
-            removed_count = len(deals) - len(valid_deals)
+            removed_count = len(deals_to_validate) - len(valid_deals)
             if removed_count > 0:
                 logger.info(
                     f"Batch validation removed {removed_count} results for '{movie.title}': "
