@@ -512,6 +512,17 @@
             display: block;
         }
 
+        .loading-text {
+            color: #9ab;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .loading-subtext {
+            font-size: 0.85rem;
+            color: #567;
+        }
+
         .spinner {
             width: 32px;
             height: 32px;
@@ -624,7 +635,8 @@
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Searching...</p>
+                <p class="loading-text">Searching retailers...</p>
+                <p class="loading-subtext">This may take a moment while we verify results</p>
             </div>
         </div>
 
