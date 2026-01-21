@@ -45,9 +45,10 @@ class TMDBService:
         self.api_key = api_key
         self.session = requests.Session()
         self.session.headers.update({
-            "Authorization": f"Bearer {api_key}",
             "Accept": "application/json",
         })
+        # Use API key as query param (works with standard TMDB API key)
+        self.default_params = {"api_key": api_key}
 
     def search_movies(
         self,
@@ -67,6 +68,7 @@ class TMDBService:
             List of TMDBMovie objects
         """
         params = {
+            **self.default_params,
             "query": query,
             "include_adult": "false",
             "language": "en-US",
@@ -111,7 +113,7 @@ class TMDBService:
         try:
             response = self.session.get(
                 f"{TMDB_BASE_URL}/movie/{movie_id}",
-                params={"language": "en-US"},
+                params={**self.default_params, "language": "en-US"},
                 timeout=10
             )
             response.raise_for_status()
@@ -160,7 +162,7 @@ class TMDBService:
         try:
             response = self.session.get(
                 f"{TMDB_BASE_URL}/movie/popular",
-                params={"language": "en-US", "page": 1},
+                params={**self.default_params, "language": "en-US", "page": 1},
                 timeout=10
             )
             response.raise_for_status()
