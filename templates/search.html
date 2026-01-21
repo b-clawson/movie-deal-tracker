@@ -782,13 +782,15 @@
             suggestionsDropdown.classList.add('active');
         }
 
-        // Select a suggestion
+        // Select a suggestion and search immediately
         function selectSuggestion(movie) {
             const titleWithYear = movie.year ? `${movie.title} (${movie.year})` : movie.title;
             movieInput.value = titleWithYear;
             searchTitleInput.value = movie.title;
             hideSuggestions();
-            movieInput.focus();
+            // Auto-submit the search
+            loading.classList.add('active');
+            searchForm.submit();
         }
 
         // Hide suggestions dropdown
