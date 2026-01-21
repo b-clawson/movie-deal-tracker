@@ -72,16 +72,23 @@ class DealFinder:
         self.request_delay = 60.0 / requests_per_minute
         self.llm_service = llm_service
 
-    def search_movie(self, movie: Movie, skip_cache: bool = False) -> List[Deal]:
+    def search_movie(self, movie: Movie, skip_cache: bool = False, timeout_seconds: float = 10.0) -> List[Deal]:
         """Search for deals on a specific movie.
 
         Args:
             movie: Movie to search for
             skip_cache: If True, bypass cache and always do fresh search
+            timeout_seconds: Max time for search (default 10s)
 
         Returns:
             List of Deal objects found
         """
+        import time as time_module
+        start_time = time_module.time()
+
+        def time_remaining() -> float:
+            return timeout_seconds - (time_module.time() - start_time)
+
         db = get_db()
 
         # Check sale period status
@@ -103,51 +110,45 @@ class DealFinder:
         deals = []
 
         # 1. Search Google Shopping via SerpAPI
-        # Use LLM-expanded queries if available, otherwise use single templated query
-        queries = self._get_search_queries(movie)
-        query = queries[0]  # Keep track of primary query for refinement fallback
-
-        for i, q in enumerate(queries):
-            logger.info(f"Searching Google Shopping ({i+1}/{len(queries)}): {q}")
-            try:
-                results = self._execute_search(q)
-                shopping_deals = self._process_results(movie, results)
-                deals.extend(shopping_deals)
-                logger.info(f"Google Shopping query {i+1}: found {len(shopping_deals)} deals")
-
-                # Rate limiting between queries
-                if i < len(queries) - 1:
-                    time.sleep(self.request_delay)
-            except Exception as e:
-                logger.error(f"Google Shopping search failed for {movie.title} (query {i+1}): {e}")
-
-        # 2. Search boutique retailer sites directly
-        # Use same search title as Google Shopping for consistency
-        search_title = movie.get_search_title()
-
-        # Build list of all acceptable titles for filtering (original + alternatives)
-        all_titles = [movie.title]
-        if movie.alternative_titles:
-            all_titles.extend(movie.alternative_titles)
-        # Add search_title if different from original
-        if search_title != movie.title and search_title not in all_titles:
-            all_titles.append(search_title)
-
+        # Use single query for speed (skip LLM expansion to save time)
+        query = self._build_query(movie)
+        logger.info(f"Searching Google Shopping: {query}")
         try:
-            retailer_results = search_boutique_retailers(
-                movie_title=search_title,
-                year=movie.year,
-                max_price=self.max_price,
-                serpapi_key=self.api_key,
-                alternative_titles=all_titles,
-                llm_service=self.llm_service,
-                director=movie.director,
-            )
-            retailer_deals = self._convert_retailer_results(movie, retailer_results)
-            deals.extend(retailer_deals)
-            logger.info(f"Boutique retailers: found {len(retailer_deals)} deals")
+            results = self._execute_search(query)
+            shopping_deals = self._process_results(movie, results)
+            deals.extend(shopping_deals)
+            logger.info(f"Google Shopping: found {len(shopping_deals)} deals ({time_remaining():.1f}s remaining)")
         except Exception as e:
-            logger.error(f"Boutique retailer search failed for {movie.title}: {e}")
+            logger.error(f"Google Shopping search failed for {movie.title}: {e}")
+
+        # 2. Search boutique retailer sites directly (skip if running low on time)
+        if time_remaining() > 3.0:
+            search_title = movie.get_search_title()
+
+            # Build list of all acceptable titles for filtering (original + alternatives)
+            all_titles = [movie.title]
+            if movie.alternative_titles:
+                all_titles.extend(movie.alternative_titles)
+            if search_title != movie.title and search_title not in all_titles:
+                all_titles.append(search_title)
+
+            try:
+                retailer_results = search_boutique_retailers(
+                    movie_title=search_title,
+                    year=movie.year,
+                    max_price=self.max_price,
+                    serpapi_key=self.api_key,
+                    alternative_titles=all_titles,
+                    llm_service=self.llm_service,
+                    director=movie.director,
+                )
+                retailer_deals = self._convert_retailer_results(movie, retailer_results)
+                deals.extend(retailer_deals)
+                logger.info(f"Boutique retailers: found {len(retailer_deals)} deals ({time_remaining():.1f}s remaining)")
+            except Exception as e:
+                logger.error(f"Boutique retailer search failed for {movie.title}: {e}")
+        else:
+            logger.info(f"Skipping boutique retailers (only {time_remaining():.1f}s remaining)")
 
         # Deduplicate by URL
         seen_urls = set()
@@ -158,21 +159,23 @@ class DealFinder:
                 unique_deals.append(deal)
         deals = unique_deals
 
-        # If few results and LLM service available, try refined searches
-        if len(deals) < 2 and self.llm_service:
+        # If few results and LLM service available, try refined searches (skip if low on time)
+        if len(deals) < 2 and self.llm_service and time_remaining() > 4.0:
             logger.info(f"Few results ({len(deals)}) for '{movie.title}', trying LLM search refinement")
             refined_deals = self._refine_search_with_llm(movie, deals, query)
-            # Deduplicate refined results
             for deal in refined_deals:
                 if deal.url not in seen_urls:
                     seen_urls.add(deal.url)
                     deals.append(deal)
             if refined_deals:
-                logger.info(f"LLM refinement added {len(refined_deals)} potential deals for '{movie.title}'")
+                logger.info(f"LLM refinement added {len(refined_deals)} deals ({time_remaining():.1f}s remaining)")
 
-        # Post-search batch validation - verify all results are for the correct movie
-        if deals and self.llm_service:
+        # Post-search batch validation (skip if low on time)
+        if deals and self.llm_service and time_remaining() > 2.0:
             deals = self._batch_validate_results(movie, deals)
+            logger.info(f"Batch validation complete ({time_remaining():.1f}s remaining)")
+        elif deals and self.llm_service:
+            logger.info(f"Skipping batch validation (only {time_remaining():.1f}s remaining)")
 
         # Cache the results (if caching is enabled)
         if cache_ttl > 0 and deals:
@@ -182,8 +185,7 @@ class DealFinder:
         elif cache_ttl == 0:
             logger.info(f"Skipping cache during sale period")
 
-        # Rate limiting (only needed for actual API calls)
-        time.sleep(self.request_delay)
+        # Note: Rate limiting handled internally by SerpAPI calls
 
         return deals
 
