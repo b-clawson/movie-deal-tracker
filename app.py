@@ -210,8 +210,13 @@ def search():
                             title = movie_title[:year_match.start()].strip()
 
                         # Try to find movie on Letterboxd for alternative titles
-                        scraper = LetterboxdScraper()
-                        movie = scraper.search_movie_by_title(title, year)
+                        movie = None
+                        try:
+                            scraper = LetterboxdScraper()
+                            movie = scraper.search_movie_by_title(title, year)
+                        except Exception as letterboxd_err:
+                            # Playwright fails in async environments (e.g., Railway)
+                            logger.warning(f"Letterboxd lookup skipped: {letterboxd_err}")
 
                         if movie:
                             search_title = movie.get_search_title()
@@ -225,7 +230,7 @@ def search():
                             if search_title != movie.title:
                                 logger.info(f"Using static mapping: {title} ({year}) -> searching as '{search_title}'")
                             else:
-                                logger.info(f"No Letterboxd match, using basic search for '{title}' ({year})")
+                                logger.info(f"Using basic search for '{title}' ({year})")
 
                     # Initialize classifier and deal finder
                     classifier = EditionClassifier()
